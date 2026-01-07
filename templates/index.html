@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solar Energy Power Predictor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="brand">
+        <span class="logo">☀️</span>
+        <span>Solar Power Energy Predictor</span>
+    </div>
+    <div class="tagline">Smart Solar Energy Prediction</div>
+</header>
+
+<main class="wrapper">
+
+    <!-- LEFT COLOR PANEL -->
+    <section class="intro">
+        <h1>Predict Solar Power Energy</h1>
+        <p>
+            A smart analytics platform designed to estimate solar power generation
+            using real-world environmental conditions and machine learning models.
+        </p>
+
+         <div class="divider"></div>
+
+        <ul class="features">
+            <li>⚡ Real-time energy predictions</li>
+            <li>🧠 Machine learning powered model</li>
+            <li>🌦 Weather-aware predictions</li>
+            <li>📈 Optimized for 3-hour windows</li>
+        </ul>
+
+        <div class="badges">
+            <span>⚡ Clean Energy</span>
+            <span>📊 ML Powered</span>
+            <span>🌍 Sustainable</span>
+        </div>
+
+        {% if prediction is not none %}
+        <div class="result">
+            <div class="result-label">Predicted Energy Output</div>
+            <div class="result-value">{{ prediction | round(2) }} J</div>
+            <div class="result-sub">Estimated for next 3 hours</div>
+        </div>
+        {% endif %}
+
+    </section>
+
+    <!-- FORM CARD -->
+    <section class="card">
+
+        <h2>Input Environmental Data</h2>
+        <p class="subtext">All values are used to predict 3-hour solar output</p>
+
+        {% set is_reset = request.method == 'GET' and request.args.get('reset') %}
+        {% set is_post = request.method == 'POST' %}
+
+        <form method="POST">
+            <div class="grid">
+
+            <div class="field">
+                <label>
+                    Distance to Solar Noon (radians)
+                    <span class="range">(min: 0.05, max: 1.14)</span>
+                </label>
+
+                <input type="number" step="any" name="distance_to_solar_noon" placeholder="Distance to Solar Noon (rad)" value="{% if is_reset %}{% elif is_post %}{{ request.form.get('distance_to_solar_noon') }}{% else %}0.29768{% endif %}" required>
+            </div>
+
+            <div class="field">
+                <label>
+                Temperature (°C)
+                <span class="range">(min: 42, max: 78)</span>
+                </label>
+
+                <input type="number" step="any" name="temperature" placeholder="Temperature (°C)" value="{% if is_reset %}{% elif is_post %}{{ request.form.get('temperature') }}{% else %}72{% endif %}" required>
+            </div>
+
+            <div class="field">
+                <label>
+                Wind Speed (m/s)
+                <span class="range">(min: 1.1, max: 26.6)</span>
+                </label>
+
+                <input type="number" step="any" name="wind_speed" placeholder="Wind Speed (m/s)" value="{% if is_reset %}{% elif is_post %}{{ request.form.get('wind_speed') }}{% else %}6.8{% endif %}" required>
+            </div>
+
+            <div class="field">
+                <label>
+                Average Wind Speed (3 hours)
+                <span class="range">(min: 0, max: 40)</span>
+                </label>
+
+                <input type="number" step="any" name="avg_wind_speed" placeholder="Avg Wind Speed (3 hrs)" value="{% if is_reset %}{% elif is_post %}{{ request.form.get('avg_wind_speed') }}{% else %}18{% endif %}" required>
+            </div>
+
+            <div class="field">
+                <label>
+                Humidity (%)
+                <span class="range">(min: 14, max: 100)</span>
+                </label>
+
+                <input type="number" step="any" name="humidity" placeholder="Humidity (%)" value="{% if is_reset %}{% elif is_post %}{{ request.form.get('humidity') }}{% else %}30{% endif %}" required>
+            </div>
+
+            <div class="field">
+                <label>
+                Average Pressure (inHg)
+                <span class="range">(min: 29.48, max: 30.53)</span>
+                </label>
+
+                <input type="number" step="any" name="avg_pressure" placeholder="Avg Pressure (inHg)" value="{% if is_reset %}{% elif is_post %}{{ request.form.get('avg_pressure') }}{% else %}29.84{% endif %}" required>
+            </div>
+
+            <div class="field">
+                <label>Sky Cover</label>
+                    {% set sky =
+                        '' if is_reset
+                        else request.form.get('sky_cover') if is_post
+                        else '0'
+                    %}
+
+                    <select name="sky_cover" required>
+                        <option value="" disabled {% if sky == '' %}selected{% endif %}>Select</option>
+                        <option value="0" {% if sky == '0' %}selected{% endif %}>Clear</option>
+                        <option value="1" {% if sky == '1' %}selected{% endif %}>Mostly Clear</option>
+                        <option value="2" {% if sky == '2' %}selected{% endif %}>Partly Cloudy</option>
+                        <option value="3" {% if sky == '3' %}selected{% endif %}>Mostly Cloudy</option>
+                        <option value="4" {% if sky == '4' %}selected{% endif %}>Overcast</option>
+                    </select>
+            </div>
+
+            <div class="field">
+                <label>
+                Wind Direction (1–36)
+                <span class="range">(min: 1, max: 36)</span>
+                </label>
+
+                <input type="number" name="wind_direction" placeholder="Wind Direction (1-36)" min="1" max="36" value="{% if is_reset %}{% elif is_post %}{{ request.form.get('wind_direction') }}{% else %}29{% endif %}" required>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="predict-btn">🚀 Predict Energy</button>
+                <a href="/?reset=1" class="reset-btn">🔄 Reset</a>
+            </div>
+            
+           </div>
+        </form>
+    </section>
+
+</main>
+
+</body>
+</html>
